@@ -1,13 +1,13 @@
 import java.io.File
-import java.util.*
-import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.LinkedBlockingQueue
 
 
 open class Location(val name: String, val x: Int, val y: Int)
 
+open class Trip(val start: Location, val end: Location, val time: Int)
+
 fun main(args: Array<String>) {
-    val lines = LinkedBlockingQueue(File("input/level2-3.txt").readLines())
+    val lines = LinkedBlockingQueue(File("input/level3-eg.txt").readLines())
 
     val numberOfLocations = lines.poll().toInt()
     val locations = (1..numberOfLocations).map {
@@ -15,33 +15,37 @@ fun main(args: Array<String>) {
         Location(parts[0], parts[1].toInt(), parts[2].toInt())
     }
 
-    val journeyTrip = lines.poll().split(" ")
-
-    val tripStart = locations.single { it.name == journeyTrip.first() }
-    val tripEnd = locations.single { it.name == journeyTrip.last() }
+    val numberJourneys = lines.poll().toInt()
+    val journeys = (1..numberJourneys).map {
+        val parts = lines.poll().split(" ")
+        Trip(locations.single { it.name == parts[0] }, locations.single { it.name == parts[1] }, parts[2].toInt())
+    }
 
     val hyperloopTrip = lines.poll().split(" ")
 
+    // END INPUT
 
-    val hyperloopLocations = locations.filter { hyperloopTrip.contains(it.name) }
-    val startHyperloop = hyperloopLocations.sortedBy { pythagoras(tripStart, it) }.first()
-    val destinationHyperloop = hyperloopLocations.single { it.name != startHyperloop.name}
+    fun calculateTripLocation(start: Location, end: Location): Double {
+        val hyperloopLocations = locations.filter { hyperloopTrip.contains(it.name) }
+        val startHyperloop = hyperloopLocations.sortedBy { pythagoras(start, it) }.first()
+        val destinationHyperloop = hyperloopLocations.single { it.name != startHyperloop.name }
 
-    val hyperloopDistance = pythagoras(startHyperloop, destinationHyperloop)
-    val hyperloopTime = hyperloopDistance / 250 + 200
+        val hyperloopDistance = pythagoras(startHyperloop, destinationHyperloop)
+        val hyperloopTime = hyperloopDistance / 250 + 200
 
-    val driveDistance = pythagoras(tripStart, startHyperloop)
-    val driveTime = driveDistance / 15
+        val driveDistance = pythagoras(start, startHyperloop)
+        val driveTime = driveDistance / 15
 
-    val walkDistance = pythagoras(destinationHyperloop, tripEnd)
-    val walkTime = walkDistance / 15
+        val walkDistance = pythagoras(destinationHyperloop, end)
+        val walkTime = walkDistance / 15
 
-    val totalTime = listOf(driveTime, hyperloopTime, walkTime).sum()
+        return listOf(driveTime, hyperloopTime, walkTime).sum()
+    }
 
-    println(totalTime)
-    println(Math.round(totalTime))
+    val shorterHyperloopTimes = journeys.filter { calculateTripLocation(it.start, it.end) < it.time }
+
+    println(shorterHyperloopTimes.size)
 }
-
 
 fun pythagoras(start: Location, end: Location): Double =
         Math.sqrt(Math.pow(Math.abs(start.x.toDouble() - end.x), 2.0) + Math.pow(Math.abs(start.y.toDouble() - end.y), 2.0))
