@@ -7,7 +7,7 @@ data class Location(val name: String, val x: Int, val y: Int)
 data class Trip(val start: Location, val end: Location, val time: Int)
 
 fun main(args: Array<String>) {
-    val lines = LinkedBlockingQueue(File("input/level4-2.txt").readLines())
+    val lines = LinkedBlockingQueue(File("input/level4-4.txt").readLines())
 
     val numberOfLocations = lines.poll().toInt()
     val locations = (1..numberOfLocations).map {
@@ -38,15 +38,31 @@ fun main(args: Array<String>) {
         return listOf(driveTime, hyperloopTime, walkTime).sum()
     }
 
+    println(minBenefitialJourness)
+
+
     val possibilities = locations.permute()
-    possibilities.forEach { hyperloopLocations ->
-        val shorterHyperloopTimes = journeys.filter { journey ->
+
+    val benefits = possibilities.map { hyperloopLocations ->
+        val shorterHyperloopTimes = journeys.count { journey ->
             calculateTripLocation(journey.start, hyperloopLocations.first, hyperloopLocations.second, journey.end) < journey.time
         }
-        // println(shorterHyperloopTimes.size)
-        if (shorterHyperloopTimes.size >= (minBenefitialJourness - 5)) {
-            println("${hyperloopLocations.first.name} ${hyperloopLocations.second.name}")
-            return
+        Pair(hyperloopLocations, shorterHyperloopTimes)
+    }
+
+    val mostBenefits = benefits.maxBy { it.second }!!
+
+    println(mostBenefits.first)
+    println(mostBenefits.second)
+
+    possibilities.forEach { hyperloopLocations ->
+        val journeysBenefitingFromHyperloop = journeys.filter { journey ->
+            calculateTripLocation(journey.start, hyperloopLocations.first, hyperloopLocations.second, journey.end) < journey.time
+        }
+        // println(journeysBenefitingFromHyperloop.size)
+        if (journeysBenefitingFromHyperloop.size >= minBenefitialJourness) {
+            // println("${hyperloopLocations.first.name} ${hyperloopLocations.second.name}")
+            // return
         }
     }
 }
