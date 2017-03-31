@@ -7,7 +7,7 @@ open class Location(val name: String, val x: Int, val y: Int)
 open class Trip(val start: Location, val end: Location, val time: Int)
 
 fun main(args: Array<String>) {
-    val lines = LinkedBlockingQueue(File("input/level3-eg.txt").readLines())
+    val lines = LinkedBlockingQueue(File("input/level3-4.txt").readLines())
 
     val numberOfLocations = lines.poll().toInt()
     val locations = (1..numberOfLocations).map {
