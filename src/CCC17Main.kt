@@ -1,23 +1,26 @@
 import java.io.File
+import java.util.*
+import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.LinkedBlockingQueue
 
 
 open class Location(val name: String, val x: Int, val y: Int)
 
 fun main(args: Array<String>) {
-    val lines = File("input/level2-4.txt").readLines()
+    val lines = LinkedBlockingQueue(File("input/level2-3.txt").readLines())
 
-    val numberOfLocations = lines[0].toInt()
-    val locations = lines.subList(1, numberOfLocations + 1).map {
-        val parts = it.split(" ")
+    val numberOfLocations = lines.poll().toInt()
+    val locations = (1..numberOfLocations).map {
+        val parts = lines.poll().split(" ")
         Location(parts[0], parts[1].toInt(), parts[2].toInt())
     }
 
-    val journeyTrip = lines[lines.size - 2].split(" ")
+    val journeyTrip = lines.poll().split(" ")
 
     val tripStart = locations.single { it.name == journeyTrip.first() }
     val tripEnd = locations.single { it.name == journeyTrip.last() }
 
-    val hyperloopTrip = lines[lines.size - 1].split(" ")
+    val hyperloopTrip = lines.poll().split(" ")
 
 
     val hyperloopLocations = locations.filter { hyperloopTrip.contains(it.name) }
